@@ -1,0 +1,12 @@
+.orbit-visual{position:relative;width:100%;height:100%;min-height:280px;isolation:isolate;pointer-events:none;contain:layout paint}
+.orbit-visual__canvas,.orbit-visual__fallback{position:absolute;inset:0;width:100%;height:100%;display:block;transition:opacity .55s ease}
+.orbit-visual__canvas{opacity:0;z-index:2}
+.orbit-visual__fallback{opacity:1;z-index:1}
+.orbit-visual--ready .orbit-visual__canvas{opacity:1}
+.orbit-visual--ready .orbit-visual__fallback{opacity:0}
+.orbit-visual__halo{position:absolute;width:64%;height:62%;left:18%;top:22%;background:radial-gradient(ellipse,rgba(255,187,119,.18),rgba(255,221,192,.07) 43%,transparent 70%);border-radius:50%;transform:rotate(-30deg)}
+.orbit-visual__shadow{position:absolute;left:18%;bottom:13%;width:69%;height:10%;border-radius:50%;background:radial-gradient(ellipse,rgba(102,64,37,.22),rgba(250,142,54,.1) 33%,transparent 68%);filter:blur(12px);transform:rotate(-7deg);z-index:0}
+.orbit-visual__satellite{position:absolute;width:11px;height:11px;border-radius:50%;background:#ff6a28;box-shadow:0 0 0 7px rgba(255,106,40,.06);top:22%;right:18%;z-index:3;animation:orbit-satellite 10s ease-in-out infinite}
+@keyframes orbit-satellite{0%,100%{transform:translate(0,0)}50%{transform:translate(-16px,12px)}}
+@media(max-width:600px){.orbit-visual{min-height:250px}.orbit-visual__shadow{bottom:10%;filter:blur(9px)}.orbit-visual__satellite{width:8px;height:8px;right:17%}}
+@media(prefers-reduced-motion:reduce){.orbit-visual__satellite{animation:none}.orbit-visual__canvas,.orbit-visual__fallback{transition:none}}
