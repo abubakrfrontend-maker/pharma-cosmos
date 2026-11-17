@@ -12,7 +12,7 @@
 @media(max-width:850px){.company-grid,.feedback-grid,.faq{min-width:0}.company-grid>* ,.feedback-grid>* ,.faq>*{min-width:0}.branch-grid{grid-template-columns:1fr}.branch-art{transform:scale(.8);margin:0 auto;width:100%;max-width:500px}.branch-copy>p:not(.branch-note){max-width:490px}.closing-phone>span{font-size:21px}}
 @media(max-width:600px){.hero{display:flex;flex-direction:column}.hero-copy{display:contents}.hero .eyebrow{order:1}.hero h1{order:2}.hero h1>span{margin-left:.2em}.hero-description{order:3}.hero-art{position:relative;order:4;top:auto;right:auto;width:calc(100% + 30px);height:300px;margin:-5px -15px 0}.hero-actions{order:5;margin-top:0;width:100%}.hero-bottom{order:6;width:100%}.branch-art{transform:scale(.73);margin:0 -40px -15px;width:auto;max-width:none}.closing-phone>span{font-size:25px}}
 /* Soft atmosphere around the orbit, without competing with the typography. */
-.hero{background:radial-gradient(ellipse at 80% 44%,rgba(255,150,82,.17) 0%,rgba(255,180,132,.07) 34%,transparent 64%),radial-gradient(ellipse at 10% 24%,rgba(140,185,204,.1) 0%,transparent 53%)}
-.company{background:radial-gradient(ellipse at 8% 45%,rgba(158,191,184,.075),transparent 66%)}
-.categories{background:radial-gradient(ellipse at 88% 65%,rgba(255,179,127,.08),transparent 62%)}
-@media(max-width:600px){.hero{background:radial-gradient(ellipse at 78% 51%,rgba(255,150,82,.18),transparent 58%),radial-gradient(ellipse at 5% 10%,rgba(140,185,204,.09),transparent 55%)}}
+.hero{background:radial-gradient(ellipse at 80% 44%,rgba(255,150,82,.28) 0%,rgba(255,180,132,.13) 38%,transparent 72%),radial-gradient(ellipse at 10% 24%,rgba(140,185,204,.18) 0%,transparent 63%)}
+.company{background:radial-gradient(ellipse at 8% 45%,rgba(158,191,184,.13),transparent 72%)}
+.categories{background:radial-gradient(ellipse at 88% 65%,rgba(255,179,127,.14),transparent 70%)}
+@media(max-width:600px){.hero{background:radial-gradient(ellipse at 78% 51%,rgba(255,150,82,.28),transparent 68%),radial-gradient(ellipse at 5% 10%,rgba(140,185,204,.16),transparent 63%)}}

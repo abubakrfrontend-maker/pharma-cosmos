@@ -88,6 +88,36 @@ test("rejects foreign Origin and cross-site Fetch Metadata", async () => {
   assert.equal((await handler.POST(request(data(), { headers: { "Sec-Fetch-Site": "cross-site" } }), env)).status, 403);
 });
 
+test("accepts the actual Host origin when Next canonicalizes the URL hostname", async () => {
+  const handler = build();
+  const localRequest = new Request("http://localhost:5173/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Host: "127.0.0.1:5173", Origin: "http://127.0.0.1:5173" },
+    body: JSON.stringify(data()),
+  });
+  assert.equal((await handler.POST(localRequest, env)).status, 200);
+});
+
+test("actual Host matching still rejects foreign origins, ports, protocols and forwarded hosts", async () => {
+  const handler = build();
+  const rejected = [
+    { Origin: "https://attacker.example" },
+    { Origin: "http://127.0.0.1:9999" },
+    { Origin: "https://127.0.0.1:5173" },
+    { Origin: "https://attacker.example", "X-Forwarded-Host": "attacker.example", "X-Forwarded-Proto": "https" },
+    { Origin: "http://127.0.0.1:5173", "Sec-Fetch-Site": "cross-site" },
+    { Origin: "http://attacker.example", Host: "127.0.0.1:5173@attacker.example" },
+  ];
+  for (const headers of rejected) {
+    const localRequest = new Request("http://localhost:5173/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Host: "127.0.0.1:5173", ...headers },
+      body: JSON.stringify(data()),
+    });
+    assert.equal((await handler.POST(localRequest, env)).status, 403, JSON.stringify(headers));
+  }
+});
+
 test("content type, JSON and byte size are enforced including streamed bodies", async () => {
   const handler = build();
   assert.equal((await handler.POST(request(data(), { headers: { "Content-Type": "text/plain" } }), env)).status, 415);
@@ -179,5 +209,36 @@ test("rate-limits distinct submissions, permits idempotent retries and expires t
 test("invalid optional topic ID is treated as unconfigured", () => {
   assert.equal(readConfig({ ...env, TELEGRAM_MESSAGE_THREAD_ID: "oops" }).configured, false);
   assert.equal(readConfig({ ...env, TELEGRAM_MESSAGE_THREAD_ID: "-1" }).configured, false);
+});
+
+test("Vercel clients have separate limits and cannot evade limits with a Cloudflare header", async () => {
+  const handler = build();
+  const vercelEnv = { ...env, VERCEL: "1" };
+  for (let index = 0; index < 5; index++) {
+    const firstClient = request(data({ submissionId: "vercel_submission_" + index }), {
+      headers: { "X-Forwarded-For": "198.51.100.10" },
+    });
+    assert.equal((await handler.POST(firstClient, vercelEnv)).status, 200);
+  }
+  const blocked = request(data({ submissionId: "vercel_submission_5" }), {
+    headers: { "X-Forwarded-For": "198.51.100.10", "CF-Connecting-IP": "192.0.2.99" },
+  });
+  assert.equal((await handler.POST(blocked, vercelEnv)).status, 429);
+  const secondClient = request(data({ submissionId: "vercel_submission_5" }), {
+    headers: { "X-Forwarded-For": "198.51.100.11" },
+  });
+  assert.equal((await handler.POST(secondClient, vercelEnv)).status, 200);
+});
+
+test("forwarded headers are not trusted outside Vercel", async () => {
+  const handler = build();
+  for (let index = 0; index < 5; index++) {
+    assert.equal((await handler.POST(request(data({ submissionId: "local_submission_" + index }), {
+      headers: { "X-Forwarded-For": "198.51.100." + index },
+    }), env)).status, 200);
+  }
+  assert.equal((await handler.POST(request(data({ submissionId: "local_submission_5" }), {
+    headers: { "X-Forwarded-For": "198.51.100.99" },
+  }), env)).status, 429);
 });
 

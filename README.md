@@ -1,61 +1,84 @@
 # Pharma Cosmos — ORBIT
 
-Dorixonalar tarmog‘i uchun o‘zbekcha landing page. React/Vinext, moslashuvchan sahifa, WebGL orbital animatsiya va Telegramga tayyor server formasi.
+O‘zbek tilidagi dorixonalar tarmog‘i landing page’i. Next.js 16 App Router, React 19, moslashuvchan sahifa, jonli WebGL orbit animatsiyasi va Telegramga yuboriladigan mijoz fikri formasi.
 
-## Ishga tushirish
+## Lokal ishga tushirish
 
-Node.js 22.13 yoki yangiroq talab qilinadi.
+Node.js 22.x kerak. Loyiha papkasida:
 
 ```sh
-npm run install:ci
+npm ci
 npm run dev
 ```
 
-Mahalliy manzil odatda http://127.0.0.1:5173/.
+Sayt: http://127.0.0.1:5173/
 
-Cloudflare mahalliy runtime kompyuter resurslari sabab ochilmasa, Node asosidagi muqobil ko‘rish rejimi:
-
-```sh
-node node_modules/vite/bin/vite.js --config vite.local.config.ts
-```
-
-Bu rejim server qiymatlarini process.env orqali oladi; .dev.vars faylini avtomatik yuklamaydi. Nashr qilish uchun asosiy vite.config.ts va Sites integratsiyasi saqlanadi.
+Server `.env.local` faylini avtomatik o‘qiydi. Sozlamalarni o‘zgartirgandan keyin serverni qayta ishga tushiring.
 
 ## Yig‘ish va tekshirish
 
 ```sh
+npm test
+npm run typecheck
 npm run build
-node node_modules/typescript/bin/tsc --noEmit
-node --test tests/feedback.test.mjs
+npm start
 ```
 
-Nashr Sites vositalari orqali bajariladi. .openai/hosting.json mavjud loyiha identifikatorini saqlaydi; yangi loyiha yaratish shart emas.
+- `npm test` — Telegramga haqiqiy xabar yubormaydigan 17 ta server testi.
+- `npm run typecheck` — Next.js turlarini yaratish va TypeScript tekshiruvi.
+- `npm run build` — Webpack orqali production yig‘ish.
+- `npm start` — yig‘ilgan saytni lokal 5173-portda ochish.
 
-## Telegramni keyin ulash
+Lokal kompyuter xotirasini tejash uchun build bitta worker va Webpack xotira optimizatsiyasi bilan sozlangan.
 
-Foydalanuvchi botni keyin ulashni tanlagan. Hozir bot siri berilmagan; sahifa «tez orada» holati va telefon orqali aloqa imkoniyatini ko‘rsatadi. Xabar yuborildi degan soxta natija yo‘q.
+## GitHub → Vercel
 
-Server sozlamalari:
+1. Kodni tanlangan GitHub repozitoriyga commit va push qiling. Maxfiy fayllarni qo‘shmang.
+2. Vercelda **Add New → Project → Import Git Repository** orqali shu repozitoriyni tanlang.
+3. Loyiha ildiz papkasini tanlang. `vercel.json` frameworkni **Next.js** deb belgilaydi.
+4. Node.js versiyasi **22.x**, build buyrug‘i **npm run build** bo‘lsin. Output Directory uchun Next.js standart sozlamasini qoldiring.
+5. Quyidagi server sozlamalarini Vercel **Project Settings → Environment Variables** bo‘limiga kiriting.
+6. Deploy qiling. Keyingi production branch pushlari Vercelda yangi deployment yaratadi.
 
-- TELEGRAM_BOT_TOKEN — bot tokeni, maxfiy qiymat.
-- TELEGRAM_CHAT_ID — mas’ul administrator yoki admin guruhi IDsi.
-- TELEGRAM_MESSAGE_THREAD_ID — ixtiyoriy, guruhdagi mavzu IDsi.
+Custom domen ulanganda `SITE_URL`ni to‘liq `https://...` manzilga sozlash mumkin. Aks holda metadata uchun Vercelning production domeni avtomatik olinadi.
 
-Mahalliy Cloudflare ko‘rish rejimi uchun .env.example nusxasini .dev.vars deb saqlang va qiymatlarni faqat o‘z kompyuteringizda kiriting. Jonli sayt uchun qiymatlar Sites runtime secrets sifatida kiritiladi va sayt qayta nashr qilinadi. Tokenni frontend kodiga, NEXT_PUBLIC_ o‘zgaruvchisiga yoki Gitga qo‘shmang.
+## Telegram sozlamalari
 
-Forma → server tekshiruvi → Telegram sendMessage → tasdiqlangan muvaffaqiyat. Telegram xatosida yozilgan matn yo‘qolmaydi. Bir xil murojaat qayta yuborilganda submissionId saqlanadi; matn o‘zgarsa yangi ID olinadi. Yuborish paytida maydonlar vaqtincha qulflanadi.
+`.env.example` faylidan lokal `.env.local` nusxa yarating. Qiymatlarni faqat shu lokal faylga yoki Vercelning maxfiy environment sozlamalariga kiriting.
 
-Spam cheklovi va takroriy so‘rov nazorati Worker isolate xotirasida ishlaydi. Bu butun tizim bo‘ylab doimiy kafolat emas; katta ommaviy trafik uchun mustaqil doimiy saqlash yoki platforma rate limit kerak.
+| O‘zgaruvchi | Vazifasi |
+| --- | --- |
+| `TELEGRAM_BOT_TOKEN` | Fikrlarni yuboradigan bot tokeni; server uchun maxfiy. |
+| `TELEGRAM_CHAT_ID` | Mas’ul administrator yoki admin guruhi IDsi. |
+| `TELEGRAM_MESSAGE_THREAD_ID` | Ixtiyoriy: admin guruhidagi forum mavzusi IDsi. |
+| `SITE_URL` | Ixtiyoriy: saytning to‘liq production manzili. |
 
-## Ma’lumot manbasi
+Administrator avval bot bilan suhbatni boshlashi yoki bot tegishli guruhga qo‘shilishi kerak. Botda shu chatga xabar yuborish huquqi bo‘lishi lozim. Fikrlarni qabul qiladigan bot va saytdagi buyurtma/filial ma’lumoti uchun Telegram havolasi alohida vazifalarni bajaradi.
 
-Kompaniya ma’lumotlari foydalanuvchi bergan pharmacosmos.html faylidan olindi. 140+ filial, telefon va ijtimoiy tarmoq kontaktlari tashqi manbalarda tasdiqlanmagan. Aniq filial manzillari berilmagan; sahifa Telegram yoki call-markazga yo‘naltiradi. Dekorativ orbital tasvir haqiqiy geografik xarita emas.
+Tokenni Gitga, READMEga, brauzer kodiga yoki `NEXT_PUBLIC_` nomli o‘zgaruvchiga yozmang. `.env.local`, `.env*` maxfiy fayllari va `.vercel/` Gitdan chiqarilgan; faqat bo‘sh `.env.example` kuzatiladi. Vercel environment o‘zgargach yangi deploy kerak. Preview muhitida haqiqiy adminlarga test xabarlari ketmasligi uchun alohida bot/chat yoki bo‘sh sozlamalardan foydalaning.
 
-## Tekshiruv holati
+## Fikr yuborish oqimi
 
-- Feedback serveri uchun 13 avtomatlashtirilgan test muvaffaqiyatli o‘tdi; haqiqiy Telegram xabarlari yuborilmadi.
-- TypeScript tekshiruvi (tsc --noEmit) muvaffaqiyatli o‘tdi.
-- Mahalliy server avval HTTP 200, /api/feedback esa configured:false qaytargan.
-- Jonli bot bilan end-to-end tekshiruv token va admin guruhi sozlangandan keyin bajariladi.
-- Brauzerda vizual tekshiruv va nashr natijasini faqat amalda kuzatilganidan keyin tasdiqlash kerak.
+Forma → `/api/feedback` → server tekshiruvi → Telegram `sendMessage` → tasdiqlangan natija.
 
+Admin xabarida quyidagilar tartibli, ikonka va yulduzlar bilan keladi:
+
+- Murojaat raqami va Toshkent vaqti.
+- Murojaat turi, filial va 1–5 yulduzli baho.
+- Mijozning izohi.
+- Ism, telefon va javob olish istagi.
+- Murojaat manbasi.
+
+Muvaffaqiyat faqat Telegram javobida xabar IDsi tasdiqlangandan keyin ko‘rsatiladi. Xatoda yozilgan matn saqlanadi. Yuborish davomida forma qulflanadi. Bir xil murojaat qayta yuborilsa bir xil ID saqlanadi; matn o‘zgarsa yangi ID ishlatiladi.
+
+`GET /api/feedback` faqat `configured` holatini qaytaradi. Bu sozlamalar shakli borligini bildiradi, botning amalda yetkazishini isbotlamaydi. Token yoki chat ID yetishmasa forma telefon orqali aloqa variantini ko‘rsatadi.
+
+## Tekshiruv va cheklovlar
+
+17 ta avtomatlashtirilgan test server tekshiruvlari, xatoliklar, takroriy yuborish, vaqt cheklovi va Vercel mijozlari uchun alohida limitni qamrab oladi. Ular Telegram tarmog‘ini taqlid qiladi; haqiqiy botga yetkazish alohida end-to-end sinov bilan tekshiriladi.
+
+Spam va takroriy so‘rov nazorati har bir server instance xotirasida ishlaydi. Instance qayta ishga tushganda holat yangilanadi; bu butun tizim bo‘ylab doimiy limit emas. Katta ommaviy trafikda doimiy saqlash yoki Vercel Firewall qoidalari qo‘shilishi mumkin.
+
+Kompaniya ma’lumotlari foydalanuvchi taqdim etgan `pharmacosmos.html` faylidan olingan. Filiallar soni va kontaktlar kompaniya tomonidan tasdiqlanishi kerak. Dekorativ orbitlar haqiqiy geografik xarita emas.
+
+Avvalgi Sites/Vinext/Cloudflare yordamchi fayllari saqlanib qolgan bo‘lishi mumkin. Joriy `package.json`, Next.js konfiguratsiyasi va Vercel deployment ulardan foydalanmaydi.
